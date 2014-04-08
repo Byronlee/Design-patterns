@@ -231,8 +231,9 @@ this.arrayList.clone();
 __[注意]  要使用clone方法，类的成员变量上不要增加final关键字__
 
 
-* 问题讨论
- * 如果一个原型类被继承了,
+
+### 问题讨论
+ * 如果一个原型类被继承了,如:
  ```java
    (PrototypeClass)super.clone();   执行这句话会有什么结果?
  ```
