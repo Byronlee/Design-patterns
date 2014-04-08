@@ -1,4 +1,4 @@
-Design-patterns-in-ruby
+Design-patterns
 =======================
 
   设计模式（Design pattern）是一套被反复使用、多数人知晓的、经过分类编目的、代码设计经验的总结。使用设计模式是为了可重用代码、
