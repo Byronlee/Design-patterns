@@ -160,8 +160,7 @@ __[注意]  使用clone方法拷贝时，满足两个条件的对象才不会被
 ```java
 public class Thing implements Cloneable{  
     //定义一个私有变量  
-    private ArrayList<String> arrayList = new 
-ArrayList<String>();  
+    private ArrayList<String> arrayList = new ArrayList<String>();  
  
     @Override  
     public Thing clone(){  
@@ -169,7 +168,7 @@ ArrayList<String>();
         try {  
             thing = (Thing)super.clone();  
             thing.arrayList = (ArrayList<String>)
-this.arrayList.clone();  
+            this.arrayList.clone();  
         } catch (CloneNotSupportedException e) {  
             e.printStackTrace();  
         }  
@@ -205,8 +204,7 @@ PS：深拷贝与浅拷贝问题中，会发生深拷贝的有java中的8中基�
 ```java
 public class Thing implements Cloneable{  
     //定义一个私有变量  
-    private final ArrayList<String> arrayList = 
-new ArrayList<String>();  
+    private final ArrayList<String> arrayList = new ArrayList<String>();  
  
     @Override  
     public Thing clone(){  
@@ -214,7 +212,7 @@ new ArrayList<String>();
         try {  
             thing = (Thing)super.clone();     
             this.arrayList = (ArrayList<String>)
-this.arrayList.clone();  
+            this.arrayList.clone();  
         } catch (CloneNotSupportedException e) {  
             e.printStackTrace();  
         }  
@@ -239,7 +237,7 @@ __[注意]  要使用clone方法，类的成员变量上不要增加final关键�
 ### Ruby中的clone
   
 Ruby是一门动态语言,一切都是对象! 每个对象都可以复制,因为每一个对象的祖先连中都继承了Object类,该类支持两种方式:clone,dup.
-Ruby所以中复制对象支持三种方式:=,clone,dup, 先来看现象 :
+Ruby中所以复制对象支持三种方式:=,clone,dup, 先来看现象 :
 
 ruby中的'='可以理解为指针或者引用
 ```ruby
@@ -303,27 +301,32 @@ irb(main):004:0> b.object_id
 >> a
 => [0, [99, 2]]
 ```
- 情况几乎跟dup一模一样. 所以clone也不一定可以相信哦! 
-__dup和clone__ 区别:
-dup 的官方文档：
+情况几乎跟dup一模一样. 所以clone也不一定可以相信哦! 
+
+__dup和clone 区别:__
+
+_dup 的官方文档:_
 
 > dup
+>
 > Produces a shallow copy of obj—the instance variables of obj are copied, but not the objects they reference. dup copies the tainted state of obj. See also the discussion under Object#clone. In general, clone and dup may have different semantics in descendant classes. While clone is used to duplicate an object, including its internal state, dup typically uses the class of the descendant object to create the new instance.
+>
 > This method may have class-specific behavior. If so, that behavior will be documented under the #initialize_copy method of the class.
 
-大意是 dup 会进行浅拷贝--只拷贝对象包含的实例变量，而不是实例变量所引用的对象本身。而且 dup 会拷贝对象的 tainted 状态。而特定类的 dup 方法可能会有额外的一些行为，具体参考该类对于 initialize_copy 方法的解释。
+大意是 dup 会进行浅拷贝--只拷贝对象包含的实例变量，而不是实例变量所引用的对象本身。而且 dup 会拷贝对象的 [tainted](http://stackoverflow.com/questions/1736161/whats-the-purpose-of-tainting-ruby-objects) 状态。而特定类的 dup 方法可能会有额外的一些行为，具体参考该类对于 initialize_copy 方法的解释。
 
-clone的官方文档：
+_clone的官方文档：_
 
 > clone
+>
 > Produces a shallow copy of obj—the instance variables of obj are copied, but not the objects they reference. Copies the frozen and tainted state of obj. See also the discussion under Object#dup.
 This method may have class-specific behavior. If so, that behavior will be documented under the #initialize_copy method of the class.
 
-大意是 clone 会进行浅拷贝--只拷贝对象包含的实例变量，而不是实例变量所引用的对象本身。而且 clone 会拷贝对象的 tainted 和 frozen 状态。而特定类的 clone 方法可能会有额外的一些行为，具体参考该类对于 initialize_copy 方法的解释。
+大意是 clone 会进行浅拷贝--只拷贝对象包含的实例变量，而不是实例变量所引用的对象本身。而且 clone 会拷贝对象的 [tainted](http://stackoverflow.com/questions/1736161/whats-the-purpose-of-tainting-ruby-objects) 和 [frozen](http://stackoverflow.com/questions/2204945/ruby-cant-modify-frozen-string-typeerror) 状态。而特定类的 clone 方法可能会有额外的一些行为，具体参考该类对于 initialize_copy 方法的解释。
 
-对两者的简单总结
+对两者的简单总结:
 
-相同点：
+* 相同点：
 
 浅拷贝(shallow copy)：只拷贝对象包含的实例变量，而不是实例变量所引用的对象本身
 ```ruby
@@ -345,7 +348,7 @@ ruby.tainted?  #=> true
 ruby.dup.tainted?  #=> true
 ruby.clone.tainted?  #=> true
 ```
-不同点：
+* 不同点：
 
 clone 会拷贝对象的 frozen 状态
 ```ruby
@@ -366,11 +369,13 @@ ruby.creator  #=> Matz
 ruby.dup.creator  #=> undefined method `creator' for #<ProgramLanguage @name="ruby">
 ruby.clone.creator  #=> Matz
 ```
-原来ruby中的dup和clone都是shallow复制, 只针对object的第一级属性.  难道在Ruby中没有办法复制对像吗? 也不完全是, 可以借助: Marshal.
+Ruby中的dup和clone都是shallow复制, 只针对object的第一级属性.  难道在Ruby中没有办法复制对像吗? 也不完全是, 可以借助: Marshal.
 
 _Marshal_
 > The marshaling library converts collections of Ruby objects into a byte stream, allowing them to be stored outside the currently active script. This data may subsequently be read and the original objects reconstituted.
+>
 > Marshal.dump 将对象转化成  a byte stream
+>
 > Marshal.load 将byte stream 还原对象
 
 就是Marshal只能序列化一般对象，数组哈希，高级一些的对象不能序列化（IO，Proc，singleton等） 
@@ -400,8 +405,11 @@ _Marshal_
 >>    from (irb):59
 ```
 更完善的复制方案可以考虑给ruby增加一个deep clone功能, 可以参考以下链接:
+
 [deep clone demo](http://www.artima.com/forums/flat.jsp?forum=123&thread=40913)
+
 你也可以自实现 initialize_clone 的一些方法: 
+
 参考[initialize_clone, initialize_dup and initialize_copy in Ruby](http://www.jonathanleighton.com/articles/2011/initialize_clone-initialize_dup-and-initialize_copy-in-ruby/)
-```
+
 ### Js版通用代码
