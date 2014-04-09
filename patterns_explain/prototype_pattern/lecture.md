@@ -1,4 +1,3 @@
-
 设计模式- 原型模式 
 ===================================
 _[注] 讲解主要以java环境为主,代码实现可带不同语言版本_
@@ -58,6 +57,8 @@ public Mail clone(){
 请注意，在clone()方法上增加了一个注解@Override，没有继承一个类为什么可以覆写呢？想想看，在Java中所有类的老祖宗是谁？对嘛，Object类，每个类默认都是继承了这个类，所以这个用上覆写是非常正确的，--覆写了Object类中的clone方法！
 
 ### ruby版通用代码
+http://reyesyang.info/articles/45
+http://www.cslog.cn/Content/ruby-deep-clone/
 ### js版通用代码
 
 ### 优缺点
