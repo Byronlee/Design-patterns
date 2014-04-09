@@ -1,13 +1,13 @@
 设计模式- 原型模式 
 ===================================
-_[注] 讲解主要以java环境为主,代码实现可带不同语言版本_
+_[注] 讲解主要以Java环境为主,代码实现可带不同语言版本_
 
 ### 提纲
 * 原型模式主要内容,定义
 * 使用场景
 * 通用模式代码(java)
-* ruby版通用代码
-* js版通用代码
+* Ruby中的clone
+* Js版通用代码
 * 优缺点
 * 原型模式的注意事项
 * 问题讨论
@@ -56,10 +56,173 @@ public Mail clone(){
 ```
 请注意，在clone()方法上增加了一个注解@Override，没有继承一个类为什么可以覆写呢？想想看，在Java中所有类的老祖宗是谁？对嘛，Object类，每个类默认都是继承了这个类，所以这个用上覆写是非常正确的，--覆写了Object类中的clone方法！
 
-### ruby版通用代码
-http://reyesyang.info/articles/45
-http://www.cslog.cn/Content/ruby-deep-clone/
-### js版通用代码
+### Ruby中的clone
+  
+  Ruby是一门动态语言,一切都是对象! 每个对象都可以复制,因为每一个对象的祖先连中都继承了Object类,该类复制对象支持三种方式:=,clone,dup!先来看现象:
+```ruby
+# ruby中的'='可以理解为指针或者引用
+>> a= [0,[1,2]]
+>> b=a
+>> b[0]=88
+>> b[1][0]=99
+>> b  
+=> [88, [99, 2]]
+>> a  
+=> [88, [99, 2]]
+
+# 再看:
+
+irb(main):002:0> a = "Hooopo"  
+=> "Hooopo"  
+irb(main):003:0> b = a  
+=> "Hooopo"  
+irb(main):004:0> b.object_id  
+=> 23424840  
+irb(main):005:0> a.object_id  
+=> 23424840  
+
+# 原来b跟a根本就是同一个object, 只是马甲不一样罢了. 所以b = a不是复制.
+
+# ruby中clone和dup都是浅拷贝
+
+# 那 b = a.dup 呢?? 还是看代码:
+
+# 例一:
+
+irb(main):001:0> a = "Hooopo"  
+=> "Hooopo"  
+irb(main):002:0> b = a.dup  
+=> "Hooopo"  
+irb(main):003:0> a.object_id  
+=> 23428740  
+irb(main):004:0> b.object_id 
+
+# 例二:
+
+>> a= [0,[1,2]]
+>> b=a.dup
+>> b[0]=88
+>> b[1][0]=99
+>> b
+=> [88, [99, 2]]
+>> a
+=> [0, [99, 2]]
+
+# 情况似乎有所好转, 在修改b后, a还是有一部分被修改了.(0没有变,但原来的1变成了99).
+# 所以dup有时候是复制(如在Array只有一级时), 但有时不是复制哦.
+
+# 再来一个, b = a.clone呢? 上代码:
+>> a= [0,[1,2]]
+>> b=a.clone
+>> b[0]=88
+>> b[1][0]=99
+>> b
+=> [88, [99, 2]]
+>> a
+=> [0, [99, 2]]
+```
+ 情况几乎跟dup一模一样. 所以clone也不一定可以相信哦! 
+__dup和clone__ 区别:
+dup 的官方文档：
+
+> dup
+> Produces a shallow copy of obj—the instance variables of obj are copied, but not the objects they reference. dup copies the tainted state of obj. See also the discussion under Object#clone. In general, clone and dup may have different semantics in descendant classes. While clone is used to duplicate an object, including its internal state, dup typically uses the class of the descendant object to create the new instance.
+> This method may have class-specific behavior. If so, that behavior will be documented under the #initialize_copy method of the class.
+
+大意是 dup 会进行浅拷贝--只拷贝对象包含的实例变量，而不是实例变量所引用的对象本身。而且 dup 会拷贝对象的 tainted 状态。而特定类的 dup 方法可能会有额外的一些行为，具体参考该类对于 initialize_copy 方法的解释。
+
+clone的官方文档：
+
+> clone
+> Produces a shallow copy of obj—the instance variables of obj are copied, but not the objects they reference. Copies the frozen and tainted state of obj. See also the discussion under Object#dup.
+This method may have class-specific behavior. If so, that behavior will be documented under the #initialize_copy method of the class.
+
+大意是 clone 会进行浅拷贝--只拷贝对象包含的实例变量，而不是实例变量所引用的对象本身。而且 clone 会拷贝对象的 tainted 和 frozen 状态。而特定类的 clone 方法可能会有额外的一些行为，具体参考该类对于 initialize_copy 方法的解释。
+
+对两者的简单总结
+
+相同点：
+
+浅拷贝(shallow copy)：只拷贝对象包含的实例变量，而不是实例变量所引用的对象本身
+```ruby
+class ProgramLanguage
+  attr_accessor :name
+  def initialize(name)
+    @name = name
+  end
+end
+
+ruby = ProgramLanguage.new "ruby"
+ruby.name.object_id == ruby.dup.name.object_id  #=> true
+ruby.name.object_id == ruby.clone.name.object_id  #=> true
+```
+拷贝对象的 tainted 状态
+```ruby
+ruby.taint
+ruby.tainted?  #=> true
+ruby.dup.tainted?  #=> true
+ruby.clone.tainted?  #=> true
+```
+不同点：
+
+clone 会拷贝对象的 frozen 状态
+```ruby
+ruby.freeze
+ruby.frozen?  #=> true
+ruby.dup.frozen?  #=> false
+ruby.clone.frozen?  #=> true
+```
+clone 会拷贝对象的单例方法
+```ruby
+ruby = ProgramLanguauge.new "ruby"
+
+def ruby.creator
+  "Matz"
+end
+
+ruby.creator  #=> Matz
+ruby.dup.creator  #=> undefined method `creator' for #<ProgramLanguage @name="ruby">
+ruby.clone.creator  #=> Matz
+```
+原来ruby中的dup和clone都是shallow复制, 只针对object的第一级属性.  难道在Ruby中没有办法复制对像吗? 也不完全是, 可以借助: Marshal.
+
+_Marshal_
+> The marshaling library converts collections of Ruby objects into a byte stream, allowing them to be stored outside the currently active script. This data may subsequently be read and the original objects reconstituted.
+> Marshal.dump 将对象转化成  a byte stream
+> Marshal.load 将byte stream 还原对象
+
+就是Marshal只能序列化一般对象，数组哈希，高级一些的对象不能序列化（IO，Proc，singleton等） 
+
+```ruby
+1.9.3-p374 :003 > b = Marshal.dump("thing")
+ => "\x04\bI\"\nthing\x06:\x06ET" 
+
+# 查看例子:
+>> a= [0,[1,2]]
+>> b=Marshal.load(Marshal.dump(a))
+>> b[0]=88
+>> b[1][0]=99
+>> b
+=> [88, [99, 2]]
+>> a= [0,[1,2]]
+=> [0, [1, 2]]
+
+# 修改b后a没有被改变!!! 似乎终于成功找到复制的办法了!!!
+# 为什么要加"似乎"呢? 因为有些object是不能被Marshal.dump的.如:
+
+>> t=Object.new
+>> def t.test; puts ‘test’ end
+>> Marshal.dump(t)
+TypeError: singleton can’t be dumped
+    from (irb):59:in `dump’
+    from (irb):59
+```
+更完善的复制方案可以考虑给ruby增加一个deep clone功能, 可以参考以下链接:
+[deep clone demo](http://www.artima.com/forums/flat.jsp?forum=123&thread=40913)
+你也可以自实现 initialize_clone 的一些方法: 
+参考[initialize_clone, initialize_dup and initialize_copy in Ruby](http://www.jonathanleighton.com/articles/2011/initialize_clone-initialize_dup-and-initialize_copy-in-ruby/)
+```
+### Js版通用代码
 
 ### 优缺点
 
