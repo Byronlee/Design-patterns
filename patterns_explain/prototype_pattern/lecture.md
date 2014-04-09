@@ -307,7 +307,7 @@ __dup和clone 区别:__
 
 _dup 的官方文档:_
 
-> dup
+> [dup](http://ruby-doc.org/core-2.0.0/Object.html#method-i-dup)
 >
 > Produces a shallow copy of obj—the instance variables of obj are copied, but not the objects they reference. dup copies the tainted state of obj. See also the discussion under Object#clone. In general, clone and dup may have different semantics in descendant classes. While clone is used to duplicate an object, including its internal state, dup typically uses the class of the descendant object to create the new instance.
 >
@@ -317,7 +317,7 @@ _dup 的官方文档:_
 
 _clone的官方文档：_
 
-> clone
+> [clone](http://ruby-doc.org/core-2.0.0/Object.html#method-i-clone)
 >
 > Produces a shallow copy of obj—the instance variables of obj are copied, but not the objects they reference. Copies the frozen and tainted state of obj. See also the discussion under Object#dup.
 This method may have class-specific behavior. If so, that behavior will be documented under the #initialize_copy method of the class.
