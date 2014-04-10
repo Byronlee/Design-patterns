@@ -185,17 +185,17 @@ Ruby中要实现享元模式，跟Java思路差不多，可以用一样的类图
 在ruby中值得一提可以改进或者不一样的地方目前想到的地方主要是： 再保持一个对象中变与不变的地方，可以用一起ruby特有的方式元编程来处理，将变的部分动态的放入对象：
 想到的有一下几点：
 * 可以将动态的行为用 Module#define_method 来定义：
-  ```ruby
+  ```
     myClass.send(:you_behave,arg)
   ```
 * 使用闭包，将变的部分以代码块的形式传入对象，再使用：block_given?,yeild,call等配合使用
 * 扁平作用域
   * 例1：
-    ```ruby
+    ```
     myClass.instance_eval{ # you changed something }
     ```
   * 例2：
-    ```ruby
+    ```
     myClass.class_eval{ # you changed something }
     ```
   * instance_eval与class_eval的区别为：前者只会修改当前self,后者会同时修改self和当前类，后者实际上是重新打开类，和class关键字做的一样 ，详情参见：《Ruby元编程》102页
