@@ -413,3 +413,4 @@ _Marshal_
 参考[initialize_clone, initialize_dup and initialize_copy in Ruby](http://www.jonathanleighton.com/articles/2011/initialize_clone-initialize_dup-and-initialize_copy-in-ruby/)
 
 ### Js版通用代码
+http://liuzhijun.iteye.com/blog/1157453
