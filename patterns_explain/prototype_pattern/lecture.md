@@ -410,8 +410,9 @@ http://liuzhijun.iteye.com/blog/1157453
 ### 问题讨论
  * 如果一个原型类被继承了,如:
  ```java
-   (PrototypeClass)super.clone();   执行这句话会有什么结果?
+   (PrototypeClass)super.clone(); 
  ```
+ 执行这句话会有什么结果?
  * java实现 super.clone方法的源码?
  * 可以参考一下Cloneable接口的 源码?
 
