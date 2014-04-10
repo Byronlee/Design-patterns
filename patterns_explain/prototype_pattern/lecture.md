@@ -8,9 +8,9 @@ _[注] 讲解主要以Java环境为主,代码实现可带不同语言版本_
 * 通用模式代码(java)
 * 优缺点
 * 原型模式的注意事项
-* 问题讨论
 * Ruby中的clone
 * Js版通用代码
+* 问题讨论
 
 ###  原型模式主要内容,定义
 * 用原型实例指定创建对象的种类，并且通过拷贝这些原型创建新的对象。
@@ -224,16 +224,6 @@ public class Thing implements Cloneable{
 
 __[注意]  要使用clone方法，类的成员变量上不要增加final关键字__
 
-
-
-### 问题讨论
- * 如果一个原型类被继承了,如:
- ```java
-   (PrototypeClass)super.clone();   执行这句话会有什么结果?
- ```
- * java实现 super.clone方法的源码?
- * 可以参考一下Cloneable接口的 源码?
-
 ### Ruby中的clone
   
 Ruby是一门动态语言,一切都是对象! 每个对象都可以复制,因为每一个对象的祖先连中都继承了Object类,该类支持两种方式:clone,dup.
@@ -414,3 +404,14 @@ _Marshal_
 
 ### Js版通用代码
 http://liuzhijun.iteye.com/blog/1157453
+
+
+
+### 问题讨论
+ * 如果一个原型类被继承了,如:
+ ```java
+   (PrototypeClass)super.clone();   执行这句话会有什么结果?
+ ```
+ * java实现 super.clone方法的源码?
+ * 可以参考一下Cloneable接口的 源码?
+
