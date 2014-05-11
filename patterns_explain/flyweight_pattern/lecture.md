@@ -199,7 +199,9 @@ Ruby中要实现享元模式，跟Java思路差不多，可以用一样的类图
     ```
     myClass.class_eval{ # you changed something }
     ```
-  * instance_eval与class_eval的区别为：前者只会修改当前self,后者会同时修改self和当前类，后者实际上是重新打开类，和class关键字做的一样 ，详情参见：《Ruby元编程》102页
+  * instance_eval与class_eval的区别为：
+    * 详情参见：《Ruby元编程》102页
+    * [对ruby中的class << object以及class_eval和instance_eval的探讨](https://github.com/Byronlee/learn_world/blob/master/%E5%AF%B9ruby%E4%B8%AD%E7%9A%84class%20%3C%3C%20self%E5%8F%8A%E5%85%B6class_eval%E5%92%8Cinstance_eval%E7%9A%84%E6%8E%A2%E8%AE%A8.md)
 
 ### Js中的享元
 
