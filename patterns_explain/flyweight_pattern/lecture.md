@@ -244,4 +244,4 @@ var getDiv = (function(){
 
 * 享元模式与单例模式的相似之处？ 各自强调的重点？ 
 * 简单享元模式和复合享元模式的区别 ?
-* 复合享元模式与合成(组合)模式的 关联关系？
+* 复合享元模式与[合成(组合)模式](https://github.com/Byronlee/Design-patterns/blob/master/patterns_explain/composite_pattern/lecture.md)的 关联关系？
