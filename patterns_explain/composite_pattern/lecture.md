@@ -231,3 +231,4 @@ public class Client {
 
 * 透明式组合是将管理子元素的方法定义在Component(元件)接口中
 * 安全式组合是将管理子元素的方法定义在Composite(合成)类中
+* 如果组合模式中出现大量相似的组件对象,就可以考虑使用[享元模式](https://github.com/Byronlee/Design-patterns/blob/master/patterns_explain/flyweight_pattern/lecture.md)来帮助组件缓存
