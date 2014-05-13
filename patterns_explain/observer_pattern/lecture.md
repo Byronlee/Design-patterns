@@ -745,3 +745,13 @@ sub.notifyObservers();
 var sub = new Subject();
 
 ```
+
+
+### 问题讨论
+* callback vs observer ?
+  * 回调是短暂的:他强调一次性！把它变成一个函数被调用一次。通常我们在API中使用这个回调。如果你的功能和你需要做的事情有着紧密耦合的关系。通常情况下,你只能传递一个回调。比如：运行一个线程,该线程终止时调用的回调。 　　 
+  * 观测者强调重复性和松耦合性。观察者的生命更长,在任何时候它可以连接/分离。可以有许多观察家对同样的事情,他们可以有不同的寿命。比如：UI中显示值根据用户的输入从一个值变到另一个值。
+* ActiveRecord中的Observer： [ActiveRecord::Observer](http://api.rubyonrails.org/v3.2.13/classes/ActiveRecord/Observer.html)
+* ActiveRecord中的Callback： [ActiveRecord::Callbacks](http://api.rubyonrails.org/v3.2.13/classes/ActiveRecord/Callbacks.html)
+
+
