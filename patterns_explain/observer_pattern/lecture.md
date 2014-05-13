@@ -17,6 +17,7 @@ _[注] 讲解主要以Java环境为主,代码实现可带不同语言版本_
 * JAVA提供的对观察者模式的支持
 * 怎样使用JAVA对观察者模式的支持
 * Ruby中的观察者
+* Ruby提供的观察者模式库
 * Js中的观察者
 
 ### 问题的产生
@@ -460,61 +461,287 @@ Test对象首先创建了Watched和Watcher对象。在创建Watcher对象时，�
 
 ### Ruby中的观察者
 
-Ruby中要实现观察者模式，跟Java思路差不多，可以用一样的类图，代码逻辑没有大的变化，__可以用ruby代码将上面的例子重写一遍.__ 
+Ruby中的观察者与java中的基本上没有任何差别，UML图一样，Ruby本身也提供了observer库，只不过在一些实现细节，可以使用Ruby的一些特有元编程特性
 
-在ruby中值得一提可以改进或者不一样的地方目前想到的地方主要是： 再保持一个对象中的变与不变的地方，可以用一起ruby特有的方式元编程来处理，将变的部分动态的放入对象：
-想到的有一下几点：
-* 可以将动态的行为用 Module#define_method 来定义：
-  ```
-    myClass.send(:you_behave,arg)
-  ```
-* 使用闭包，将变的部分以代码块的形式传入对象，再使用：block_given?,yeild,call等配合使用
-* 扁平作用域
-  * 例1：
-    ```
-    myClass.instance_eval{ # you changed something }
-    ```
-  * 例2：
-    ```
-    myClass.class_eval{ # you changed something }
-    ```
-  * instance_eval与class_eval的区别为：
-    * 详情参见：《Ruby元编程》102页
-    * [对ruby中的class << object以及class_eval和instance_eval的探讨](https://github.com/Byronlee/learn_world/blob/master/%E5%AF%B9ruby%E4%B8%AD%E7%9A%84class%20%3C%3C%20self%E5%8F%8A%E5%85%B6class_eval%E5%92%8Cinstance_eval%E7%9A%84%E6%8E%A2%E8%AE%A8.md)
+下面看一个自实现的一个Ruby观察者模式，其中演变重构过3次，该例来自于《Ruby设计模式》中的观察者模式篇章
 
-### Js中的观察者
+```ruby
+# -*- coding: utf-8 -*-
+#　员工类
+# class Employee
+#   attr_reader :name, :title
+#   attr_reader :salary
 
-我们已经知道观察者模式的用意和主旨，那我们再看一个在Js中的应用。
+#   def initialize name,title,salary
+#     @name = name
+#     @title = title
+#     @salary = salary
+#     @observers = []
+#   end
 
-在webqq里面, 打开QQ好友列表往下拉的时候，会为每个好友创建一个div( 如果算上div中的子节点, 还远不只1个元素 ).
+#   # 由于我们要通知员工工资单关于员工工资的调整，所以不能对salary字段实用arrr_accessor,而必须手动的设定salary=　方法
+#   def salary= new_salay
+#     @salary = new_salay
+#     notify_observers
+#   end
 
-如果有1000个QQ好友, 意味着如果从头拉到尾, 会创建1000个div, 这时候有些浏览器也许已经假死了. 这还只是一个随便翻翻好友列表的操作.
+#   def notify_observers
+#     @observers.each do | observer |
+#       observer.update self
+#     end
+#   end
 
-所以我们想到了一种解决办法, 当滚动条滚动的时候, 把已经消失在视线外的div都删除掉. 这样页面可以保持只有一定数量的节点. 问题是这样频繁的添加与删除节点, 也会造成很大的性能开销, 而且这种感觉很不对味.
+#   def add_observer observer
+#     @observers << observer
+#   end
 
-现在观察者模式可以登场了. 顾名思义, 观察者模式可以提供一些共享的对象以便重复利用. 仔细看下上图, 其实我们一共只需要10个div来显示好友信息,也就是出现在用户视线中的10个div.这10个div就可以写成观察者.
+#   def delete_observer observer
+#     @observers.delete observer
+#   end
+# end
 
-伪代码如下：
+# # 两个个观察者类
+# class　Payroll
+#   def update changed_employee
+#     puts "changed_employee name #{changed_employee.name}"
+#     puts "his salary now is #{changed_employee.salary}"
+#   end
+# end
+
+# class　TaxMan
+#   def update changed_employee
+#     puts "#{changed_employee.name} a new tex bill"
+#   end
+# end
+
+
+# usage:
+ fred = Employee.new('Fred','Opearater',3000.0)
+ playroll = Playroll.new
+ fred.add_observer playroll
+
+ fred.salary = 3500.0
+
+ fred.add_observer Taxman.new
+ fred.salary = 8000.0
+
+# 重构 1：
+# 提取可被观察能力支持的代码，将实现观察者的代码提出来作为subjectobserver，不能做为一个基类，被继承，因为，ruby只允许继承一个基类，采用基类，就阻止了
+#　了任何使用其他基类的可能性，那么employer就很难扩展，　所以把观察者部分重构一个模组
+
+module SubjectObserver
+  def initialize
+    @observers = []
+  end
+
+  # def add_observer observer
+  #   @observers << observer
+  # end
+
+  # def delete_observer observer
+  #   @observers.delete observer
+  # end
+
+  # def notify_observers
+  #   @observers.each do | observer |
+  #     observer.update self
+  #   end
+  # end
+
+
+  #　重构２　使用代码快作为观察器
+  def add_observer &observer
+    @observers << observer
+  end
+
+  def delete_observer &observer
+    @observers.delete observer
+  end
+
+  def notify_observers
+    @observers.each do | observer |
+      observer.call self
+    end
+  end
+end
+
+
+class Employee
+  include SubjectObserver
+
+  attr_reader :name ,:address
+  attr_reader :salary
+
+  def initialize name,title,salary
+    super()
+    @name = name
+    @title = title
+    @salary = salary
+  end
+
+
+  def salary= new_salay
+    @old_salary = @salary
+    @salary= new_salay
+    # notify_observers
+    #　重构3
+    # 添加稳定状态，满足一定调节才通知
+     notify_observers self if @old_salary!= @salary
+  end
+end
+
+
+
+# usage:
+ fred = Employee.new 'Fred','opreaer',30000
+
+ fred.add_observer do |changed_employee|
+   # your block ..
+ end
+```
+
+
+### Ruby提供的观察者模式库
+
+Ruby本身对Observer就有很好的支持，使用Ruby提供的Observer库，也很方便，直接include Observable模块就好了
+
+>
+> __[Observable](http://ruby-doc.org/stdlib-2.0.0/libdoc/observer/rdoc/Observable.html)__
+>
+> The Observer pattern (also known as publish/subscribe) provides a simple mechanism for one object to inform a set of interested third-party objects when its state changes.
+>
+> __Mechanism__
+>
+> The notifying class mixes in the Observable module, which provides the methods for managing the associated observer objects.
+> The observers must implement a method called update to receive notifications.
+> The observable object must:
+> *  assert that it has #changed
+> *  call #notify_observers
+
+Ruby Observer模块提供了一下几个方法：
+
+* #add_observer
+* #changed
+* #changed?
+* #count_observers
+* #delete_observer
+* #delete_observers
+* #notify_observers
+
+下面看一个官方给出的Observer使用例子：
+
+__场景__: 一个时钟(Ticker),当它运行时，持续接受股票价格(stock Price)从它的@symbol. 一个报警器负责产生一个对price的观察者，这里演示了两个报警器，(a WarnLow and a WarnHigh), 当price够低，或者超过它的极限是就报警
+
+```ruby
+require "observer"
+
+class Ticker          ### Periodically fetch a stock price.
+  include Observable
+
+  def initialize(symbol)
+    @symbol = symbol
+  end
+
+  def run
+    lastPrice = nil
+    loop do
+      price = Price.fetch(@symbol)
+      print "Current price: #{price}\n"
+      if price != lastPrice
+        changed                 # notify observers
+        lastPrice = price
+        notify_observers(Time.now, price)
+      end
+      sleep 1
+    end
+  end
+end
+
+class Price           ### A mock class to fetch a stock price (60 - 140).
+  def Price.fetch(symbol)
+    60 + rand(80)
+  end
+end
+
+class Warner          ### An abstract observer of Ticker objects.
+  def initialize(ticker, limit)
+    @limit = limit
+    ticker.add_observer(self)
+  end
+end
+
+class WarnLow < Warner
+  def update(time, price)       # callback for observer
+    if price < @limit
+      print "--- #{time.to_s}: Price below #@limit: #{price}\n"
+    end
+  end
+end
+
+class WarnHigh < Warner
+  def update(time, price)       # callback for observer
+    if price > @limit
+      print "+++ #{time.to_s}: Price above #@limit: #{price}\n"
+    end
+  end
+end
+
+ticker = Ticker.new("MSFT")
+WarnLow.new(ticker, 80)
+WarnHigh.new(ticker, 120)
+ticker.run
+```
+运行结果：
+```ruby
+Current price: 83
+Current price: 75
+--- Sun Jun 09 00:10:25 CDT 2002: Price below 80: 75
+Current price: 90
+Current price: 134
++++ Sun Jun 09 00:10:25 CDT 2002: Price above 120: 134
+Current price: 134
+Current price: 112
+Current price: 79
+--- Sun Jun 09 00:10:25 CDT 2002: Price below 80: 79
+```
+### JS中的观察者
+
+众所周知Js中使用最多的还是回调函数，但是他们之间存在很大的联系，他们的区别和特点我们在之后篇章讲解，下面来看一个Js实现的观察者模式
 
 ```js
-var getDiv = (function(){
-    var created = [];
-    var create = function(){
-          return document.body.appendChild( document.createElement( 'div' ) );
+//被观察者
+function Subject() {
+    var _this = this;
+    this.observers = [];
+    this.addObserver = function(obj) {
+        _this.observers.push(obj);
     }
-    var get = function(){
-         if ( created.length ){
-              return created.shift();
-          }else{
-                return create();
-           }
-     }
-/* 一个假设的事件，用来监听刚消失在视线外的div，实际上可以通过监听滚 动条位置来实现 */
-      userInfoContainer.disappear(function( div ){
-              created.push( div );
-        })
- })()
-  var div = getDiv();
-  div.innerHTML = "${userinfo}";
+    this.deleteObserver = function(obj) {
+        var length = _this.observers.length;
+        for(var i = 0; i < length; i++) {
+            if(_this.observers[i] === obj) {
+                _this.observers.splice(i, 1);
+            }
+        }
+    }
+    this.notifyObservers = function() {
+        var length = _this.observers.length;
+        console.log(length)
+        for(var i = 0; i < length; i++) {
+            _this.observers[i].update();
+        }
+    }
+}
+//观察者
+function Observer() {
+    this.update = function() {
+        alert(1)
+    }
+}
+var sub = new Subject();
+var obs = new Observer();
+sub.addObserver(obs);
+sub.notifyObservers();
+var sub = new Subject();
+
 ```
-原理其实很简单, 把刚隐藏起来的div放到一个数组中, 当需要div的时候, 先从该数组中取, 如果数组中已经没有了, 再重新创建一个. 这个数组里的div就是观察者, 它们每一个都可以当作任何用户信息的载体.
